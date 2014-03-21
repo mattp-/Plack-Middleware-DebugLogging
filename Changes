@@ -1,6 +1,7 @@
 Revision history for Perl extension Plack-Middleware-DebugLogging
 
 {{$NEXT}}
+    - was using msg instead of message in psgix.logger input erroneously.
 
 0.001000  2014-03-21 18:54:49-04:00 EST5EDT
     - initial release.

@@ -8,7 +8,7 @@ use Plack::Builder;
 my $log;
 my $handler = builder {
     enable 'Plack::Middleware::DebugLogging',
-        logger => sub { $log .= $_[0]->{msg}."" }, term_width => 80;
+        logger => sub { $log .= $_[0]->{message}."" }, term_width => 80;
     sub { [ 200, [ 'Content-Type' => 'text/plain' ], [ 'OK' ] ] };
 };
 
@@ -93,7 +93,7 @@ LOG
 $log = "";
 $handler = builder {
     enable 'Plack::Middleware::DebugLogging',
-        logger => sub { $log .= $_[0]->{msg}."" }, term_width => 80;
+        logger => sub { $log .= $_[0]->{message}."" }, term_width => 80;
     sub {
         return sub {
             my $writer = $_[0]->( [ 200, [ 'Content-Type' => 'text/plain' ] ] );
