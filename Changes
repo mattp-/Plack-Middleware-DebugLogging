@@ -1,4 +1,6 @@
 Revision history for Perl extension Plack-Middleware-DebugLogging
 
 {{$NEXT}}
+
+0.001000  2014-03-21 18:54:49-04:00 EST5EDT
     - initial release.
