@@ -111,10 +111,10 @@ curl -XPOST http://0:5000/api/1/2? -d'foo=bar&foo=baz'
 
 =head1 DESCRIPTION
 
-This is a refactoring of Catalyst's debugging output for use in any Plack
-application, sitting infront of a web framework or otherwise. This is ideal for
-development environments. You probably would not want to run this on your
-production application.
+This is a refactoring/stealing of Catalyst's useful debugging output for use in
+any Plack application, sitting infront of a web framework or otherwise. This is
+ideal for development environments. You probably would not want to run this on
+your production application.
 
 This middleware will use psgix.logger if available in the environment,
 otherwise it will fall back to printing to stderr.
