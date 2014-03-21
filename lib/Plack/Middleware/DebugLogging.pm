@@ -9,8 +9,9 @@ use Text::SimpleTable;
 use Plack::Request;
 use Plack::Response;
 use Term::Size::Any;
-use Plack::Util::Accessor qw(debug request response request_headers request_parameters response_headers
-                             response_status_line keywords uploads body_params query_params logger);
+use Plack::Util::Accessor qw(debug request response request_headers request_parameters
+                             response_headers  response_status_line keywords uploads
+                             body_params query_params logger logger_override term_width);
 
 use parent qw/Plack::Middleware/;
 
@@ -22,11 +23,14 @@ sub prepare_app {
     $self->response(1) unless defined $self->response;
     $self->keywords(1) unless defined $self->keywords;
     $self->request_headers(1) unless defined $self->request_headers;
+    $self->request_parameters(1) unless defined $self->request_parameters;
     $self->response_headers(1) unless defined $self->response_headers;
     $self->response_status_line(1) unless defined $self->response_status_line;
     $self->uploads(1) unless defined $self->uploads;
     $self->body_params(1) unless defined $self->body_params;
     $self->query_params(1) unless defined $self->query_params;
+
+    $self->logger_override(1) if defined $self->logger;
 }
 
 sub call {
@@ -34,14 +38,17 @@ sub call {
 
     my $request = Plack::Request->new($env);
 
-    if ($request->logger) {
-        $self->logger($request->logger);
-    }
-    else {
-        $self->logger(sub {
-            my ($args) = @_;
-            print STDERR $args->{msg};
-        });
+    # take latest $request->logger unless it was explicitly provided at build time
+    if (!$self->logger_override) {
+        if ($request->logger ) {
+            $self->logger($request->logger);
+        }
+        else {
+            $self->logger(sub {
+                my ($args) = @_;
+                print STDERR $args->{msg};
+            });
+        }
     }
 
     $self->log_request($request) if $self->request;
@@ -109,7 +116,10 @@ application, sitting infront of a web framework or otherwise. This is ideal for
 development environments. You probably would not want to run this on your
 production application.
 
-There are a large list of boolean attrs which can be used to control which
+This middleware will use psgix.logger if available in the environment,
+otherwise it will fall back to printing to stderr.
+
+There are a large list of attrs which can be used to control which
 output you want to see:
 
 =over 4
@@ -174,10 +184,10 @@ sub log_request {
 
     if ( index( $request->env->{QUERY_STRING}, '=' ) < 0 ) {
         my $keywords = $self->unescape_uri($request->env->{QUERY_STRING});
-        $self->log("Query keywords are: $keywords")
+        $self->log("Query keywords are: $keywords\n")
             if $keywords && $self->keywords;
+        return;
     }
-
 
     $self->log_request_parameters(query => $request->query_parameters->mixed, body => $request->body_parameters->mixed)
         if $self->request_parameters;
@@ -243,7 +253,7 @@ sub log_request_parameters {
 
     return unless $self->debug;
 
-    my $column_width = $self->term_width() - 44;
+    my $column_width = $self->_term_width() - 44;
     foreach my $type (qw(query body)) {
         my $params = $all_params{$type};
         next if ! keys %$params;
@@ -299,7 +309,7 @@ sub log_headers {
 
     return unless $self->debug;
 
-    my $column_width = $self->term_width() - 28;
+    my $column_width = $self->_term_width() - 28;
     my $t = Text::SimpleTable->new( [ 15, 'Header Name' ], [ $column_width, 'Value' ] );
     $headers->scan(
         sub {
@@ -325,7 +335,11 @@ sub env_value {
     return;
 }
 
-sub term_width {
+sub _term_width {
+    my ($self) = @_;
+
+    return $self->term_width if $self->term_width;
+
     my $width = eval '
         my ($columns, $rows) = Term::Size::Any::chars;
         return $columns;
