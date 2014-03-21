@@ -40,13 +40,13 @@ sub call {
 
     # take latest $request->logger unless it was explicitly provided at build time
     if (!$self->logger_override) {
-        if ($request->logger ) {
+        if ($request->logger) {
             $self->logger($request->logger);
         }
         else {
             $self->logger(sub {
                 my ($args) = @_;
-                print STDERR $args->{msg};
+                print STDERR $args->{message};
             });
         }
     }
@@ -64,7 +64,7 @@ sub log {
     my ($self, $msg) = @_;
 
     if (my $logger = $self->logger) {
-        $logger->({ level => 'debug', msg => "$msg\n" });
+        $logger->({ level => 'debug', message => "$msg\n" });
     }
     else {
         print STDERR $msg;
