@@ -190,10 +190,10 @@ sub log_request {
 
     if ($self->request_parameters) {
         $self->log_request_parameters(query => $request->query_parameters->mixed)
-            if $self->query_params
+            if $self->query_params;
 
         $self->log_request_parameters(body => $request->body_parameters->mixed)
-            if $self->body_params;
+            if $request->content && $self->body_params;
     }
 
     $self->log_request_uploads($request) if $self->uploads;
