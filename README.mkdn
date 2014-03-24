@@ -4,7 +4,7 @@ Plack::Middleware::DebugLogging - Catalyst style console debugging for plack app
 
 # VERSION
 
-version 0.001001
+version 0.001002
 
 # SYNOPSIS
 
