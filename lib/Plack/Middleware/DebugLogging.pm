@@ -186,11 +186,15 @@ sub log_request {
         my $keywords = $self->unescape_uri($request->env->{QUERY_STRING});
         $self->log("Query keywords are: $keywords\n")
             if $keywords && $self->keywords;
-        return;
     }
 
-    $self->log_request_parameters(query => $request->query_parameters->mixed, body => $request->body_parameters->mixed)
-        if $self->request_parameters;
+    if ($self->request_parameters) {
+        $self->log_request_parameters(query => $request->query_parameters->mixed)
+            if $self->query_params
+
+        $self->log_request_parameters(body => $request->body_parameters->mixed)
+            if $self->body_params;
+    }
 
     $self->log_request_uploads($request) if $self->uploads;
 }
