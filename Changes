@@ -1,8 +1,10 @@
 Revision history for Perl extension Plack-Middleware-DebugLogging
 
 {{$NEXT}}
+    improve documentation to show off more features of DebugLogging.
 
 0.001002  2014-03-24 10:37:27-04:00 EST5EDT
+    - bugfix to request param logging. now allows for more fine tuned control.
 
 0.001001  2014-03-21 19:37:54-04:00 EST5EDT
     - was using msg instead of message in psgix.logger input erroneously.
