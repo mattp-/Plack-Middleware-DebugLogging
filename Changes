@@ -1,6 +1,8 @@
 Revision history for Perl extension Plack-Middleware-DebugLogging
 
 {{$NEXT}}
+
+0.001003  2014-04-07 09:05:15-04:00 EST5EDT
     improve documentation to show off more features of DebugLogging.
 
 0.001002  2014-03-24 10:37:27-04:00 EST5EDT
