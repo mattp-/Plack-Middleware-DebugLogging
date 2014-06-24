@@ -5,13 +5,18 @@ package Plack::Middleware::DebugLogging;
 use strict;
 use warnings;
 
+use Data::Dumper::Concise;
+use Data::Serializer::Raw;
+use Module::Runtime qw(use_module);
 use Text::SimpleTable;
 use Plack::Request;
 use Plack::Response;
 use Term::Size::Any;
+use Try::Tiny;
 use Plack::Util::Accessor qw(debug request response request_headers request_parameters
                              response_headers  response_status_line keywords uploads
-                             body_params query_params logger logger_override term_width);
+                             body_params query_params logger logger_override term_width
+                             attempt_deserialize serializer);
 
 use parent qw/Plack::Middleware/;
 
@@ -29,6 +34,11 @@ sub prepare_app {
     $self->uploads(1) unless defined $self->uploads;
     $self->body_params(1) unless defined $self->body_params;
     $self->query_params(1) unless defined $self->query_params;
+    $self->attempt_deserialize(1) unless defined $self->attempt_deserialize;
+
+    if ($self->attempt_deserialize) {
+        $self->serializer(Data::Serializer::Raw->new);
+    }
 
     $self->logger_override(1) if defined $self->logger;
 }
@@ -131,6 +141,10 @@ any Plack application, sitting infront of a web framework or otherwise. This is
 ideal for development environments. You probably would not want to run this on
 your production application.
 
+One new feature that differentiates from Catalyst is that if serialized content
+is sent via body param, an attempt will be made to deserialize based on the
+Content-Type header with Data::Serializer.
+
 This middleware will use psgix.logger if available in the environment,
 otherwise it will fall back to printing to stderr.
 
@@ -160,6 +174,10 @@ output you want to see:
 =item body_params
 
 =item query_params
+
+=item attempt_deserialize
+
+=item serializer
 
 =back
 
@@ -209,6 +227,9 @@ sub log_request {
 
         $self->log_request_parameters(body => $request->body_parameters->mixed)
             if $request->content && $self->body_params;
+
+        $self->log_request_parameters(encoded => $request)
+            if $request->content && ($request->content_type || '') !~ m/www-form-urlencoded/;
     }
 
     $self->log_request_uploads($request) if $self->uploads;
@@ -266,6 +287,20 @@ Logs request parameters to debug logs
 
 =cut
 
+our $module_map = {
+    'text/xml'           => 'XML::Simple',
+    'text/x-yaml'        => 'YAML',
+    'application/json'   => 'JSON',
+    'text/x-json'        => 'JSON',
+    'text/x-data-dumper' => 'Data::Dumper',
+    'text/x-data-denter' => 'Data::Denter',
+    'text/x-data-taxi'   => 'Data::Taxi',
+    'application/x-storable' => 'Storable',
+    'application/x-freezethaw' => 'FreezeThaw',
+    'text/x-config-general' => 'Config::General',
+    'text/x-php-serialization' => 'PHP::Serialization'
+};
+
 sub log_request_parameters {
     my $self = shift;
     my %all_params = @_;
@@ -283,6 +318,22 @@ sub log_request_parameters {
             $t->row( $key, ref $value eq 'ARRAY' ? ( join ', ', @$value ) : $value );
         }
         $self->log( ucfirst($type) . " Parameters are:\n" . $t->draw );
+    }
+
+    if (my $request = $all_params{encoded}) {
+        if (my $module = $module_map->{$request->content_type}) {
+            # if the module is not installed let Data::Serializer propogate the module load fail.
+            try {
+                $self->serializer->serializer($module);
+                my $decoded = $self->serializer->deserialize($request->content);
+                $self->log($request->content_type . " encoded body parameters are:\n" . Dumper($decoded));
+            }
+            catch {
+                $self->log($request->content_type . " failed to deserialize: $_");
+            };
+        } else {
+            $self->log('Unrecognized Content-Type: ' .$request->content_type);
+        }
     }
 }
 

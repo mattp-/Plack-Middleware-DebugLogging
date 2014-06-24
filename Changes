@@ -1,9 +1,11 @@
 Revision history for Perl extension Plack-Middleware-DebugLogging
 
 {{$NEXT}}
+    - now debuglogging will attempt to deserialize bodyparams if it can map
+      content-type to a deserializer we have installed
 
 0.001003  2014-04-07 09:05:15-04:00 EST5EDT
-    improve documentation to show off more features of DebugLogging.
+    - improve documentation to show off more features of DebugLogging.
 
 0.001002  2014-03-24 10:37:27-04:00 EST5EDT
     - bugfix to request param logging. now allows for more fine tuned control.
