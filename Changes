@@ -1,6 +1,8 @@
 Revision history for Perl extension Plack-Middleware-DebugLogging
 
 {{$NEXT}}
+
+0.001004  2014-06-24 17:50:58EDT-0400 America/Toronto
     - now debuglogging will attempt to deserialize bodyparams if it can map
       content-type to a deserializer we have installed
 

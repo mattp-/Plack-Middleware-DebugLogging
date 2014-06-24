@@ -4,7 +4,7 @@ Plack::Middleware::DebugLogging - Catalyst style console debugging for plack app
 
 # VERSION
 
-version 0.001003
+version 0.001004
 
 # SYNOPSIS
 
@@ -62,6 +62,10 @@ any Plack application, sitting infront of a web framework or otherwise. This is
 ideal for development environments. You probably would not want to run this on
 your production application.
 
+One new feature that differentiates from Catalyst is that if serialized content
+is sent via body param, an attempt will be made to deserialize based on the
+Content-Type header with Data::Serializer.
+
 This middleware will use psgix.logger if available in the environment,
 otherwise it will fall back to printing to stderr.
 
@@ -79,6 +83,8 @@ output you want to see:
 - uploads
 - body\_params
 - query\_params
+- attempt\_deserialize
+- serializer
 
 # NAME
 
@@ -91,7 +97,7 @@ Plack::Middleware::DebugLogging - Catalyst style console debugging for plack app
 Writes information about the request to the debug logs.  This includes:
 
 - Request method, path, and remote IP address
-- Query keywords (see ["query_keywords" in Catalyst::Request](https://metacpan.org/pod/Catalyst::Request#query_keywords))
+- Query keywords (see ["query\_keywords" in Catalyst::Request](http://search.cpan.org/perldoc?Catalyst::Request#query\_keywords))
 - Request parameters
 - File uploads
 
@@ -120,7 +126,7 @@ the debug logs.
 
 ## $self->log\_headers($type => $headers)
 
-Logs [HTTP::Headers](https://metacpan.org/pod/HTTP::Headers) (either request or response) to the debug logs.
+Logs [HTTP::Headers](http://search.cpan.org/perldoc?HTTP::Headers) (either request or response) to the debug logs.
 
 # AUTHOR
 
