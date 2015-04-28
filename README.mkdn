@@ -4,7 +4,7 @@ Plack::Middleware::DebugLogging - Catalyst style console debugging for plack app
 
 # VERSION
 
-version 0.001004
+version 0.001005
 
 # SYNOPSIS
 
@@ -97,7 +97,7 @@ Plack::Middleware::DebugLogging - Catalyst style console debugging for plack app
 Writes information about the request to the debug logs.  This includes:
 
 - Request method, path, and remote IP address
-- Query keywords (see ["query\_keywords" in Catalyst::Request](http://search.cpan.org/perldoc?Catalyst::Request#query\_keywords))
+- Query keywords (see ["query\_keywords" in Catalyst::Request](https://metacpan.org/pod/Catalyst::Request#query_keywords))
 - Request parameters
 - File uploads
 
@@ -126,7 +126,7 @@ the debug logs.
 
 ## $self->log\_headers($type => $headers)
 
-Logs [HTTP::Headers](http://search.cpan.org/perldoc?HTTP::Headers) (either request or response) to the debug logs.
+Logs [HTTP::Headers](https://metacpan.org/pod/HTTP::Headers) (either request or response) to the debug logs.
 
 # AUTHOR
 
@@ -134,7 +134,7 @@ Matthew Phillips <mattp@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Matthew Phillips <mattp@cpan.org>.
+This software is copyright (c) 2015 by Matthew Phillips <mattp@cpan.org>.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
